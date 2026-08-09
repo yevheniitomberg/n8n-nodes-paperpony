@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Deliberately standalone rather than extending `@paperpony/config`, and
+    // not for taste. This package is published to npm, and a `workspace:*`
+    // devDependency on a private package would be rewritten at publish time
+    // into a reference to something nobody can install. The whole point of the
+    // package is that it depends on nothing, so it depends on nothing here
+    // either. The strictness below is copied from the shared base and has to
+    // stay in step with it by hand.
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "isolatedModules": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // CommonJS, and this package is the only one in the repository that is not
+    // ESM. It was not a free choice: n8n loads a community node by `require`ing
+    // the files named in the `n8n` key of package.json, so an ESM build is a
+    // package n8n cannot load. The official starter compiles to commonjs for
+    // the same reason, and there is no `"type": "module"` in our package.json
+    // for the same reason again.
+    //
+    // The stack in CLAUDE.md says ESM. This is the documented exception, and it
+    // stops at the boundary of this package: nothing here is imported by
+    // anything else in the workspace.
+    //
+    // `verbatimModuleSyntax` is absent for the same reason. With a CommonJS
+    // module it rejects `import` syntax outright, and rewriting every import as
+    // `import x = require(...)` to keep a flag set would be the tail wagging
+    // the dog.
+    "module": "commonjs",
+    "moduleResolution": "node10",
+
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  // Build only. `n8n-node build` compiles this project, so anything listed here
+  // ends up in the published tarball: the tests live in `tsconfig.test.json`
+  // instead, and they were emitted into `dist` once before that was noticed.
+  "include": ["credentials/**/*.ts", "nodes/**/*.ts"],
+  "exclude": ["dist", "node_modules", "test"]
+}

@@ -1,0 +1,18 @@
+{
+  "node": "n8n-nodes-paperpony.paperPony",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Utility"],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://paperpony.dev/docs"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://paperpony.dev/docs"
+      }
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+# Publishes to npm with a provenance attestation.
+#
+# The attestation is the entire reason this package has a repository of its own.
+# npm will not generate one when the source repository is private, whatever the
+# flag says, and n8n has required verified community nodes to be published from
+# a GitHub action with provenance since 1 May 2026. The node's source lives here
+# and is public; the API it talks to stays private, which is what the split
+# bought and all it bought.
+#
+# There is no NPM_TOKEN. Publishing is authorised by the OIDC token GitHub mints
+# for this workflow, which npm accepts once a trusted publisher is configured on
+# the package:
+#
+#   npmjs.com/package/n8n-nodes-paperpony/access
+#     Provider                GitHub Actions
+#     Organization or user    yevheniitomberg
+#     Repository              n8n-nodes-paperpony
+#     Workflow filename       publish.yml
+#     Environment             leave empty
+#
+# All four fields are case-sensitive and the workflow filename is the filename
+# alone, not a path. A long-lived automation token cannot be used instead: npm
+# is withdrawing the right to publish from tokens that bypass 2FA, and it asks
+# for a one-time password a workflow cannot produce.
+#
+# A release is one command:
+#
+#   git tag v0.2.0 && git push origin v0.2.0
+
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  # Mints the OIDC token npm exchanges for publish rights. Without it the
+  # publish fails with an authentication error rather than a provenance one,
+  # which reads as the wrong problem.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Not `npm ci`, and there is no committed lockfile. The reason is written
+      # out in ci.yml: npm produces a lock for this tree that npm will not
+      # install from, and the field that would fix it is one n8n's community
+      # lint refuses.
+      - run: npm install --no-audit --no-fund
+
+      # The tag and the manifest have to agree, and the check is here rather
+      # than in a reviewer's head. A tag that says one version against a
+      # manifest that says another stops on the runner instead of publishing
+      # something nobody can explain afterwards.
+      - name: The tag matches package.json
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          manifest="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$manifest" ]; then
+            echo "tag $GITHUB_REF_NAME is version $tag, package.json says $manifest" >&2
+            exit 1
+          fi
+          echo "publishing $manifest"
+
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      # --provenance rather than the publishConfig field, which was removed:
+      # that field was written for a CI path and made every local publish fail
+      # with a message about provenance that read like a permissions problem.
+      - run: npm publish --provenance --access public

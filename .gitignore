@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tgz
+
+# npm writes a lock this tree cannot install from. See .github/workflows/ci.yml.
+package-lock.json

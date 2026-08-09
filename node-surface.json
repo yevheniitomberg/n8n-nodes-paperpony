@@ -1,0 +1,68 @@
+{
+  "$comment": "Generated from openapi/openapi.json by scripts/node-surface.mjs in the paperpony repository. Do not edit by hand.",
+  "job": {
+    "fields": [
+      "created_at",
+      "credits_charged",
+      "credits_remaining",
+      "error",
+      "finished_at",
+      "id",
+      "mode",
+      "output_bytes",
+      "output_expires_at",
+      "output_url",
+      "page_count",
+      "product",
+      "started_at",
+      "status",
+      "template_id",
+      "watermarked"
+    ],
+    "statuses": [
+      "failed",
+      "processing",
+      "queued",
+      "succeeded"
+    ]
+  },
+  "template": {
+    "fields": [
+      "archived_at",
+      "created_at",
+      "default_options",
+      "engine_version",
+      "id",
+      "name",
+      "product",
+      "slug",
+      "source",
+      "updated_at"
+    ]
+  },
+  "error": {
+    "envelopeFields": [
+      "code",
+      "doc_url",
+      "job_id",
+      "message",
+      "request_id"
+    ],
+    "codes": [
+      "account_suspended",
+      "insufficient_credits",
+      "internal_error",
+      "invalid_api_key",
+      "invalid_request",
+      "job_not_found",
+      "not_found",
+      "page_weight_exceeded",
+      "payload_too_large",
+      "rate_limited",
+      "render_failed",
+      "render_timeout",
+      "template_not_found",
+      "unauthorized"
+    ]
+  }
+}

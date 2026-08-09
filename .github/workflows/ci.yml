@@ -1,0 +1,67 @@
+# Everything the publish workflow runs, on every push and pull request, so that
+# a release is a tag rather than a gamble.
+#
+# The lint step is the one worth naming. `n8n-node lint` carries n8n's own
+# community and cloud compatibility rules, and failing it does not stop a
+# publish: it stops verification, weeks later, in somebody else's queue. It is
+# cheap to run and expensive to skip.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # `npm install`, and no committed lockfile, which wants explaining.
+      #
+      # npm writes a lockfile for this tree that npm itself will not install
+      # from. `@n8n/node-cli` pulls in n8n's own toolchain, and somewhere in it
+      # eslint wants `ignore@^5` while `@langchain/community` wants `ignore@^7`;
+      # the lock records one of them at the top level and no entry for the
+      # other, and `npm ci` refuses it. Reproduced on a clean regenerate, with
+      # the same npm that wrote it, so it is not a stale file.
+      #
+      # The obvious fix is an `overrides` field pinning one version. n8n's own
+      # community lint refuses that field outright, which is a verification
+      # failure rather than a style note, so the fix that makes CI green is the
+      # fix that loses the listing.
+      #
+      # What a lockfile would buy here is reproducibility of the toolchain, and
+      # nothing else: the published package has no runtime dependencies at all,
+      # and `contract.test.ts` fails if one ever appears. So the cost of not
+      # having one is that a bad release of a dev tool breaks this workflow,
+      # which is loud, immediate, and cannot reach anybody who installs the node.
+      - run: npm install --no-audit --no-fund
+
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      # The build output is what is published, and the tarball cannot be edited
+      # afterwards. `removeComments` is false on purpose so a reviewer can read
+      # the node's reasoning, which means every comment in `nodes/` ships. This
+      # catches the class of mistake that put production figures into a comment
+      # once: a number of rows, accounts, or anything that reads as how big this
+      # is. Product limits and field names are fine and are meant to be there.
+      - name: The published output carries no business figures
+        run: |
+          if grep -rniE '[0-9]{2,} (job|jobs|render|renders|account|accounts|customer|customers|row|rows)' dist/; then
+            echo "a figure above reads as how much work the product has, and dist/ is published" >&2
+            exit 1
+          fi
+          echo "dist carries no counts"

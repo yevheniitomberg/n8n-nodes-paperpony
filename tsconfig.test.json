@@ -1,0 +1,17 @@
+{
+  // The tests are typechecked but never compiled: vitest runs them through its
+  // own transform, and `dist` is what gets published.
+  //
+  // ESM here rather than the CommonJS the node is built as, because the tests
+  // read `openapi/openapi.json` relative to themselves and `import.meta.url` is
+  // how a module finds its own path. That is what vitest actually runs them as,
+  // so this config describes them more accurately than the build config would.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  },
+  "include": ["credentials/**/*.ts", "nodes/**/*.ts", "test/**/*.ts", "vitest.config.ts"],
+  "exclude": ["dist", "node_modules"]
+}

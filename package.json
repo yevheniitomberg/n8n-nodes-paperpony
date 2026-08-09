@@ -1,0 +1,67 @@
+{
+  "name": "n8n-nodes-paperpony",
+  "version": "0.2.0",
+  "private": false,
+  "description": "Create PDFs in n8n with PaperPony: render a saved template or your own HTML, and get the file back as an attachment.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "paperpony",
+    "pdf",
+    "html-to-pdf",
+    "invoice",
+    "document"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/yevheniitomberg/n8n-nodes-paperpony#readme",
+  "author": {
+    "name": "PaperPony",
+    "email": "hello@paperpony.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yevheniitomberg/n8n-nodes-paperpony.git"
+  },
+  "bugs": {
+    "email": "hello@paperpony.dev"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": [
+      "dist/credentials/PaperPonyApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/PaperPony/PaperPony.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "n8n-node build && node scripts/copy-codex.mjs",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.42.1",
+    "@types/node": "^22.10.2",
+    "n8n-workflow": "^2.16.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
