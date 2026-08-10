@@ -51,6 +51,41 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
+      # Trusted publishing is an OIDC exchange and npm only learned it in
+      # 11.5.1. Node 22 ships npm 10.9.8, which does not know the mechanism
+      # exists: it never attempts the exchange and sends whatever credential is
+      # lying around instead.
+      #
+      # Not theoretical. The first attempt at 0.2.0 signed a provenance
+      # statement, published it to the transparency log, and then got
+      # `404 Not Found - PUT`. Provenance succeeding is what made it confusing:
+      # it has worked since npm 9.5 and goes through sigstore rather than
+      # through npm's authentication, so it proves the OIDC token was minted and
+      # proves nothing about npm using it to publish. And npm answers 404 rather
+      # than 403 for a credential it will not accept, so the message said the
+      # package did not exist while 0.1.0 sat there in plain view.
+      #
+      # What it sent instead was `NODE_AUTH_TOKEN: XXXXX-XXXXX-XXXXX-XXXXX`, the
+      # placeholder `setup-node` writes into .npmrc when `registry-url` is set
+      # and no token is supplied. `registry-url` stays: npm's own example keeps
+      # it, and on a new enough CLI the OIDC exchange happens first.
+      - name: An npm that knows what trusted publishing is
+        run: |
+          npm install -g npm@^11.5.1
+          installed="$(npm --version)"
+          echo "npm $installed"
+          # Asserted rather than assumed. The failure this prevents reads as a
+          # permissions problem on the registry, so nothing downstream would
+          # point at the version.
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const enough = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            if (!enough) {
+              console.error(`npm ${process.argv[1]} cannot do trusted publishing, which needs 11.5.1`);
+              process.exit(1);
+            }
+          ' "$installed"
+
       # Not `npm ci`, and there is no committed lockfile. The reason is written
       # out in ci.yml: npm produces a lock for this tree that npm will not
       # install from, and the field that would fix it is one n8n's community
