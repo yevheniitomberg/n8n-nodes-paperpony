@@ -9,10 +9,10 @@
  * npm restates them for a related reason.
  *
  * So this file is duplication, on purpose, and the way it is kept honest is
- * `test/contract.test.ts`, which checks every field named here against the
- * `node-surface.json` at test time, which is generated from the API's openapi
- * document and vendored beside this file. Test code never ships, so the check
- * costs nothing at runtime and fails the build when the API changes shape.
+ * `test/contract.test.ts`, which checks every field named here against
+ * `integration-surface.json`, generated from the API's openapi document and
+ * vendored beside this file. Test code never ships, so the check costs nothing
+ * at runtime and fails the build when the API changes shape.
  *
  * Only the fields the node actually uses appear here. A field the node ignores
  * is a field that cannot drift.

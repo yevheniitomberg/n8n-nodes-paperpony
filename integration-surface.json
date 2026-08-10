@@ -1,5 +1,5 @@
 {
-  "$comment": "Generated from openapi/openapi.json by scripts/node-surface.mjs in the paperpony repository. Do not edit by hand.",
+  "$comment": "Generated from openapi/openapi.json by scripts/integration-surface.mjs in the paperpony repository. Do not edit by hand.",
   "job": {
     "fields": [
       "created_at",

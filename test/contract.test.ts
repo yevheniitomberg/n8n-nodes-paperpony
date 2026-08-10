@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 // because on n8n Cloud a node has no filesystem to reach for. Vitest inlines
 // these at transform time, so the check still runs against the real documents.
 import manifest from '../package.json';
-import surface from '../node-surface.json';
+import surface from '../integration-surface.json';
 import { NODE_VERSION } from '../nodes/PaperPony/constants';
 import { TRANSLATED_CODES } from '../nodes/PaperPony/errors';
 import type { JobView, TemplateView } from '../nodes/PaperPony/types';
@@ -16,7 +16,7 @@ import type { JobView, TemplateView } from '../nodes/PaperPony/types';
  * drifts, and the way it would show up is a node silently reading `undefined`
  * from a field the API renamed.
  *
- * So the copy is checked against `node-surface.json`, which is generated from
+ * So the copy is checked against `integration-surface.json`, which is generated from
  * the API's openapi document in the PaperPony repository and vendored here. It
  * has already earned its keep: the node was written believing a running job is
  * `running`, and the API calls it `processing`.
